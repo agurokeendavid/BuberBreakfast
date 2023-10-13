@@ -1,3 +1,3 @@
 ﻿namespace BuberBreakfast.Contracts.Breakfast;
 
-public record BreakfastResponse(Guid id, string name, string description, DateTime startDateTime, DateTime endDateTime, DateTime lastModifiedDateTime, List<string> savory, List<string> sweet);
+public record BreakfastResponse(Guid Id, string Name, string Description, DateTime StartDateTime, DateTime EndDateTime, DateTime LastModifiedDateTime, List<string> Savory, List<string> Sweet);

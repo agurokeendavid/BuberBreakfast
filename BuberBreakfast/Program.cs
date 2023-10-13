@@ -1,3 +1,5 @@
+using BuberBreakfast.Services.Breakfasts;
+
 var builder = WebApplication.CreateBuilder(args);
 {
 // Add services to the container.
@@ -6,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+    builder.Services.AddScoped<IBreakfastService, BreakfastService>();
 }
 
 var app = builder.Build();
@@ -17,6 +20,7 @@ var app = builder.Build();
         app.UseSwaggerUI();
     }
 
+    app.UseExceptionHandler("/errors");
     app.UseHttpsRedirection();
 
     app.UseAuthorization();
