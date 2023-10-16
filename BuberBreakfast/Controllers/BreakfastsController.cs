@@ -32,12 +32,10 @@ public class BreakfastsController : ApiController
 
         ErrorOr<Created> createBreakfastResult = _breakfastService.CreateBreakfast(breakfast);
 
-        if (createBreakfastResult.IsError)
-        {
-            return Problem(createBreakfastResult.Errors);
-        }
-        
-        return CreatedAtAction(actionName: nameof(GetBreakfast), routeValues: new { id = breakfast.Id}, value: MapBreakfastResponse(breakfast));
+        return createBreakfastResult.Match(
+            _ => CreateAtGetBreakfast(breakfast),
+            errors => Problem(errors)
+        );
     }
 
     [HttpGet("{id:guid}")]
@@ -63,19 +61,22 @@ public class BreakfastsController : ApiController
             request.Savory,
             request.Sweet
         );
-        _breakfastService.UpsertBreakfast(breakfast);
+        ErrorOr<UpsertedBreakfast> upsertBreakfastResult = _breakfastService.UpsertBreakfast(breakfast);
         
         // TODO:: return 201 if a new breakfast was created
-        return NoContent();
+        return upsertBreakfastResult.Match(
+            upserted => upserted.IsNewlyCreated ? CreateAtGetBreakfast(breakfast) : NoContent(),
+            errors => Problem(errors)
+        );
     }
 
     [HttpDelete("{id:guid}")]
     public IActionResult DeleteBreakfast(Guid id)
     {
-        ErrorOr<Deleted> deletedResult = _breakfastService.DeleteBreakfast(id);
+        ErrorOr<Deleted> deleteBreakfastResult = _breakfastService.DeleteBreakfast(id);
 
 
-        return deletedResult.Match(
+        return deleteBreakfastResult.Match(
             onValue: _ => NoContent(),
             onError: Problem);
     }
@@ -91,6 +92,15 @@ public class BreakfastsController : ApiController
             breakfast.LastModifiedDateTime,
             breakfast.Savory,
             breakfast.Sweet);
+    }
+    
+    private CreatedAtActionResult CreateAtGetBreakfast(Breakfast breakfast)
+    {
+        return CreatedAtAction(
+            actionName: nameof(GetBreakfast),
+            routeValues: new { id = breakfast.Id },
+            value: MapBreakfastResponse(breakfast)
+        );
     }
     
     
